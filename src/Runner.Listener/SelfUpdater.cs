@@ -108,6 +108,16 @@ namespace GitHub.Runner.Listener
 
         private async Task<bool> UpdateNeeded(string targetVersion, CancellationToken token)
         {
+            // check to see if the client wants to ignore auto updates of the agent
+            bool disableAutoUpdates = false;
+            bool.TryParse(Environment.GetEnvironmentVariable("GITHUB_ACTIONS_RUNNER_DISABLEUPDATES"), out disableAutoUpdates);
+
+            if (disableAutoUpdates)
+            {
+                Trace.Info($"Auto-update of runner disabled");
+                return false;
+            }
+
             // when talk to old version server, always prefer latest package.
             // old server won't send target version as part of update message.
             if (string.IsNullOrEmpty(targetVersion))
